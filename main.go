@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/go-kit/kit/log"
-	"github.com/helderjs/baby-phone/temperature"
+	"github.com/helderjs/baby-phone/environment"
 	"net/http"
 	"os"
 	"os/signal"
@@ -39,7 +39,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/v1/", temperature.MakeHandler(temperature.NewService(temperature.NewDht22Device()), httpLogger))
+	mux.Handle("/v1/", environment.MakeHandler(environment.NewService(environment.NewDht22Device()), httpLogger))
 	http.Handle("/", accessControl(mux))
 
 	errs := make(chan error, 2)

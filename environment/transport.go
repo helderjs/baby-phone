@@ -1,4 +1,4 @@
-package temperature
+package environment
 
 import (
 	"context"
@@ -17,22 +17,44 @@ func MakeHandler(s Service, logger log.Logger) http.Handler {
 		kithttp.ServerErrorEncoder(encodeError),
 	}
 
+	getEnvironmentHandler := kithttp.NewServer(
+		makeGetEnvironmentEndpoint(s),
+		decodeGetEnvironmentRequest,
+		encodeResponse,
+		opts...,
+	)
 	getTemperatureHandler := kithttp.NewServer(
 		makeGetTemperatureEndpoint(s),
 		decodeGetTemperatureRequest,
 		encodeResponse,
 		opts...,
 	)
+	getHumidityHandler := kithttp.NewServer(
+		makeGetHumidityEndpoint(s),
+		decodeGetHumidityRequest,
+		encodeResponse,
+		opts...,
+	)
 
 	r := mux.NewRouter()
 
-	r.Handle("/v1/temperature", getTemperatureHandler).Methods("GET")
+	r.Handle("/v1/environment", getEnvironmentHandler).Methods("GET")
+	r.Handle("/v1/environment/temperature", getTemperatureHandler).Methods("GET")
+	r.Handle("/v1/environment/humidity", getHumidityHandler).Methods("GET")
 
 	return r
 }
 
+func decodeGetEnvironmentRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	return getEnvironmentRequest{}, nil
+}
+
 func decodeGetTemperatureRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	return getTemperatureRequest{}, nil
+}
+
+func decodeGetHumidityRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	return getHumidityRequest{}, nil
 }
 
 type errorer interface {
